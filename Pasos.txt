@@ -1,0 +1,550 @@
+Pasos
+
+Clase Project
+-------------
+- crear la clase Project
+- insertar atributos
+- crear relacion:
+    * con Status
+    * relacion fuerte en Project
+
+
+Clase Status
+------------
+- crear la clase Status
+- insertar atributos
+- crear relacion:
+    * con Project
+
+
+Repositorio Project
+-------------------
+- crear Repositorio Project
+    * findAll (Page)
+    * findProjectByWordIgnoreCase (IgnoreCase), explicacion
+
+
+Repositorio Status
+------------------
+- crear Repositorio Status
+    * findAll (Page)
+    * findStatusByWordIgnoreCase (IgnoreCase)
+
+
+ProjectServiceI
+---------------
+- crear servicios:
+    * getAll (Page)
+    * getProjectByWord (Optional), explicacion
+    * create   
+                             _
+    * save   (validacion)    |
+    * update (validacion)    |  --> void "no".       
+    * delete (validacion)   _|       Project, para utilizar ResponseEntity en Controllers
+
+
+StatusServiceI
+--------------
+- crear servicios:
+    * getAllStatus (Page)
+    * getStatusByWordIgnoreCase (List)
+               _
+    * save      |  --> void "no".       
+    * delete   _|       Project, para utilizar ResponseEntity en Controllers
+
+
+ProjectServiceImpI
+------------------
+- implementar servicios:
+    * getAll
+    * getProjectByWord
+    * create (validacion)
+    * save
+    * update (validacion)
+    * delete (validacion)
+
+
+StatusServiceImpI
+-----------------
+- implementar servicios:
+    * list
+    * save
+    * delete
+
+
+ProjectController
+-----------------
+- crear controladores (ResponseEntity), (explicaciones)
+    * getAllProjects (Page)
+    * getProjectByWordIgnoreCase (List)
+    * createProject (Project)
+    * updateProject (Project)
+    * deleteProject (Project)
+
+StatusController
+----------------
+- crear controladores
+    * 
+
+
+
+Play
+----
+- error en Project.java, por poner tabla como portfolio
+- error en project_id, por ser en la MySQL con Integer y yo ponerlo Long
+- error en description, por ser en la MySQL con String y yo ponerlo Long
+- error en status_id, por ser en la MySQL con Integer y yo ponerlo Long
+- error en ProjectRepositoryI, extension de Pageable mal importada "models.Pageable", la buena es con "domain.Pageable"
+- lo mismo en ProjectServiceImpI (extension)
+- lo mismo en ProjectServiceI (extension)
+- lo mismo en ProjectController (extension)
+    "repository" y "service" afectan a "serviceImpI" y este afecta a "controller"
+    Repo y Service --> ServiceImpI --> Controller
+
+- error en repository, service, serviceImpI, controller pq word no vale, tiene que ser un atributo del modelo
+    Repo y Service --> ServiceImpI --> Controller
+
+- error en el repository, el nombre del metodo a utilizar pone word (findProjectByWordIgnoreCase), en vez de projectName
+    Repo y Service --> ServiceImpI --> Controller
+
+- error con status, extensions de Page, Pageable, a parte de estar mal la de Pageable, Page no es necesaria
+- status, cambiar el metodo al utilizar pone word (findProjectByWordIgnoreCase), necesitamos (findStatusByStatusNameIgnoreCase)
+        Repo y Service --> ServiceImpI --> Controller
+
+- error en ProjectController, @GetMapping("/{word}"), word no es un atributo valido, esto si @GetMapping("/word/{projectName}")
+
+________________
+
+--  FUNCIONA  --
+________________
+
+* Funciona el GET (project)
+* Funciona el POST (project con statusId)
+* Funciona el PUT (project), necesita poner en el projectId el que le corresponde no 0, que es el que se pone cuando se crea
+* Funciona el DELETE (project), solo borra el project no los status
+
+
+Crear ProjectDTO
+----------------
+- crear clase ProjectDTO con atributos
+- vamos a cambiar todo lo que devuelva Project, por ProjectDTO
+
+
+Modificar ProjectRepositoryI
+----------------------------
+- crear save(DTO)
+
+
+Modificar ProjectServiceI
+-------------------------
+- Modificar el getAll<DTO>
+- modificar el buscarPorUnaPalabra<DTO>
+- modificar el create(DTO)
+- modificar el save(DTO)
+- modificar el update(DTO)
+
+
+Modificar ProjectServiceImpI
+----------------------------
+- getAll, utilizamos .map, para transformar cada project, un DTO
+- getByName, utilizamos un bucle, que por cada project en la lista
+  lo añade a la listaDTO, usando el constructorDTO, para ver que
+  valores aparecen.
+- create, hacemos la conversion de ProjectDTO a Project
+- save (DTO)
+- update (DTO)
+
+
+Modificar ProjectController
+---------------------------
+- getAllProjects <DTO>
+- getByName <DTO>
+- create (DTO)
+- update (DTO)
+
+Play
+----
+
+________________
+
+--  FUNCIONA  --
+________________
+
+- se ven los datos
+
+
+StatusDTO
+---------
+- modificacion:
+    * atributo: String status
+    * constructor: introducir statusName, en vez de statusId
+
+
+Clase Developer
+---------------
+- crear clase Developer
+- insertar atributos
+- crear relacion:
+    * con Project, usando set<>, hashSet<>()
+
+
+Clase Project
+-------------
+- crear relacion:
+    * con Developer
+    * relacion fuerte en Project (Developer)
+    * utilizamos el @inverseJoinColumn, define la columna
+      intermedia de la entidad inversa (Developer).
+
+
+Repository Developer
+--------------------
+- crear repository
+
+
+DeveloperServiceI
+-----------------
+- crear servicios:
+    * create
+    * save
+    * delete
+
+
+DeveloperServiceImpI
+--------------------
+- implementar servicios:
+    * create (validacion)
+    * save
+    * delete (validacion)
+
+
+DeveloperController
+-----------------
+- crear controladores (ResponseEntity)
+    * create
+    * delete
+
+
+Play
+----
+
+- cambio de tipo de atributo en github_url Integer --> String
+
+no funciona algo de devMngmnt en serviceI.
+- no he puesto @Repository, en developerRepo
+- no he puesto @Service, en DeveloperServiceImpI
+
+________________
+
+--  FUNCIONA  --
+________________
+
+
+Developer
+---------
+- funciona create, pero al crearlo me genera projects[].
+  No me da fallo, ya que he utilizado Set<Project>, para que cuando sea null
+  no pete, entonces, tengo que cambiar que cuando crees un developer o tech,
+  no aparezca para meterlo en un project, sino que cuando cree el project,
+  introduzca los developers y techs
+
+
+Project
+-------
+- creo que no he puesto bien los datos, pq da error al crear,
+  voy a intentar poner en create y save, que sea Project, no ProjectDTO,
+  a ver si funciona, y si funciona, voy a crear un ProjectCreateDTO, para
+  insertar datos con el patron que yo quiera.
+
+
+CreateProjectDTO
+----------------
+- creo el DTO
+
+
+ProjectServiceI
+---------------
+- cambio en create y save (CreateProjectDTO)
+
+
+ProjectServiceImpI
+------------------
+- cambio en create (CreateProjectDTO)
+    * hago que se añada el status si existe, sino error
+
+- update
+
+- save
+    * hago que se añada el statusId si existe, sino error
+
+
+
+- voy a hacer que al crear un developer, no tengo que añadirlo a un project (project[]) al crearlo,
+  sino que cuando cree un project, tenga que añadirlo en ese momento.
+
+
+DeveloperDTO
+------------
+- crear el dto
+
+
+createProjectDTO
+----------------
+- añado el atributo de List<Developer> developers, para crear una lista, de developers.
+
+
+ProjectDTO
+----------
+- añado el atributo de List<Developer> developers = new ArrayList<>(), para crear una lista, de developers.
+- añado la lista al contructor
+
+DeveloperServiceI
+-----------------
+- cambio create (DTO)
+- cambio save (DTO)
+
+DeveloperServiceImpI
+--------------------
+- cambio de conversion para utilizar el dto
+    * create
+    * save
+
+DeveloperController
+-------------------
+- cambio create (DTO)
+
+
+________________
+
+--  FUNCIONA  --
+________________
+
+- al crear un developer sigue apareciendo projects[]
+
+
+DeveloperController
+-------------------
+- cambio en create:
+    * añado una linea, para pasar convertir el json -> dto y lo pasa al servicio
+
+- que aparezca project[] SOLUCIONADO
+
+______________
+
+-- Solucion --
+______________
+
+- Para evitar que se muestre projects[] al crear un Developer y asegurar que el campo de los
+  proyectos no se incluya en la respuesta.
+
+- Asegúrate de que no estás incluyendo directamente la lista de proyectos (projects) dentro
+  de la entidad Developer. Si la relación @ManyToMany entre Developer y Project existe, debes
+  tener cuidado de cómo la estás gestionando en las respuestas.
+
+- Asegúrate de que el DeveloperDTO no tenga un campo para projects. Si no deseas que projects[]
+  se muestre en la respuesta cuando creas un Developer, simplemente no incluyas la lista de proyectos
+  en el DeveloperDTO.
+
+- Cuando creas un nuevo Developer, asegúrate de que la respuesta que devuelves esté en formato
+  DeveloperDTO, no en formato de entidad Developer, ya que la entidad podría estar asociada a projects,
+  lo que generaría la aparición de projects[].
+
+- En el método de servicio (saveDeveloper), sigue utilizando el DTO para crear un Developer y guardarlo,
+  pero no debes preocuparte por los proyectos en este caso. Este método se encargará de crear la entidad
+  Developer y devolverla.
+
+En esencia:
+
+- Al no incluir el campo projects en el DeveloperDTO, se evita que projects[] aparezca en la respuesta
+  cuando creas un Developer.
+  La relación entre Developer y Project no tiene que ser enviada al cliente si no es necesario.
+
+
+CreateDeveloperDTO
+------------------
+- crear dto
+- añadir atributos
+- crear constructor
+
+
+DeveloperDTO
+------------
+- quitar atributos que no se van a mostrar
+
+
+DeveloperServiceI
+-----------------
+- cambiar create (createdto)
+- cambiar save (createdto)
+
+
+DeveloperServiceImpI
+--------------------
+- cambiar create (createdto)
+- cambiar save (createdto)
+
+
+DeveloperController
+-------------------
+- cambiar create (createdto)
+
+
+
+______________
+
+-- Problema --
+______________
+
+- al crear un developer, me devuelve una estructura de tres datos (DeveloperDTO),
+  en vez de todos los datos (CreateDeveloperDTO)
+
+
+_________________
+
+-- Solucionado --
+_________________
+
+
+DeveloperController
+-------------------
+- cambiar create <CreateDeveloperDTO>, añadir una linea que devuelva la estructura
+  CreateDeveloperDTO
+
+
+
+hay que probar a crear un project sin developers y otro intento con los developers
+hay que crear la parte de las tech
+probar a crear un dev con el linkedin, q no lo habia puesto
+
+
+Interfaz
+--------
+- el update project, no funciona al meter los developer, pq no me muestra los developers[]
+
+
+ProjectServiceImpI
+------------------
+- cambio update para que guarde los developers y muestre la lista
+
+
+CreateProjectDTO
+----------------
+- cambio en la lista developers pq no estaba bien asignado, pero sigue sin funcionar
+
+
+ProjectServiceImpI
+------------------
+- no habia puesto que al crear un project tambien metiese los developers
+
+
+Technologies
+------------
+- crear modelo
+- agregar atributos
+- crear relacion con Project
+
+
+Project
+-------
+- crear relacion fuerte con Technologies
+
+
+TechnologiesDTO
+---------------
+- agregar atributos
+- crear constructor
+
+
+ProjectDTO
+----------
+- agregar la lista de Technologies
+
+
+TechnologiesRepository
+----------------------
+- crear repository
+
+
+TechnologiesServiceI
+--------------------
+- crear servicios
+    * create
+    * save
+    * delete
+
+
+TechnologiesServiceImpI
+-----------------------
+- crear servicios
+    * create (try)
+    * save (try)
+    * delete (try)
+
+
+TechnologieController
+----------------------
+- crear controladores
+    * create (try)
+    * delete (try)
+
+
+- fallo en tabla project, no encuentra techId
+
+
+________________
+
+--  FUNCIONA  --
+________________
+
+
+- al crear una tech me estaba dando fallo al darle el id, y era por un try-catch, que
+  lo paraba sino existia y como al crearlo no existia petaba.
+
+- con delete igual en el servicio, estaba poniendo que si exisita parara, en vez sino
+  existiera parara.
+
+
+       5
+_______________
+
+tengo que meter los try-catch, en project y developer
+intentar crear el metodo para introducir devs y techs en projects
+si da tiempo intentar los otros metodos
+
+
+Arreglar metodo para buscar un project por nombre
+
+
+ProjectRepositoryI
+------------------
+findProjectByProjectNameStartingWithIgnoreCase(String prefix)
+
+
+ProjectServiceI
+---------------
+getProjectNameStartingWithIgnoreCase(String prefix)
+
+
+ProjectServiceImpI
+------------------
+public List<ProjectDTO> getProjectNameStartingWithIgnoreCase(String prefix)
+
+    List<ProjectDTO> projectDTOs = new ArrayList<>();
+    for (Project project : projects) {
+        projectDTOs.add(new ProjectDTO(project));
+    }
+
+    return projectDTOs;
+
+
+Metodo para agregar tech y dev --> Project
+------------------------------------------
+
+agregar metodo addDeveloperToProject (dev)
+agregar metodo addTechToProject (tech)
+
+implementar metodo addDeveloperToProject (dev)
+implementar metodo addTechToProject (tech)
+
+controller metodo addDeveloperToProject (dev)
+controller metodo addTechToProject (tech)
